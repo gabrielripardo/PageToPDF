@@ -6,4 +6,4 @@ Isso permitirá que o leitor realize acesse o material de qualquer lugar, além 
 edição dos textos, assim estudantes terão mais qualidades em seus estudos,podendo realizar 
 marcação de texto, anotações, dentre outros.
 
-myBranch Beta-back-end
+myBranch Beta-front-end
