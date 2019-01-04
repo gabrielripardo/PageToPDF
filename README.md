@@ -7,3 +7,4 @@ edição dos textos, assim estudantes terão mais qualidades em seus estudos,pod
 marcação de texto, anotações, dentre outros.
 
 myBranch Beta-front-end
+mais uma versão
