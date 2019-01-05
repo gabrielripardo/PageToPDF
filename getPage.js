@@ -40,7 +40,9 @@ async function inserirCokies(page, browser, url){
     await page.goto(url);
     console.log(JSON.stringify(cookiesSet));
     
-    goByPage(page, browser);
+    //await page.waitFor(20000);
+    modifyElements(page, browser);
+    //goByPage(page, browser);
 }
 async function runMouse(page){
     var cont = 0;
@@ -51,9 +53,7 @@ async function runMouse(page){
         console.log(cont++);
     }
 }
-async function goByPage(page, browser){          
-    runMouse(page); //Simula o movimento do mouse        
-    
+async function goByPage(page, browser){              
     //Espera o seletor ser carregado
     await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-file-contents > div > div > div.file-viewer-navigator > div > div.pages-info > input[type="number"]')
     
@@ -78,20 +78,36 @@ async function getPage(page, nPage){
     await page.emulateMedia('screen');
     var path = 'pag. '+ nPage.toString()+'.pdf';
     //await page.screenshot({path: path});
-    await page.pdf({path: path, format: 'A4'}); 
-     
-    //openSecondaryPage(); //Abre uma janela da página no chrome.  
+    await page.pdf({path: path, format: 'A4'});              
 }     
 async function closePage(browser){
     await browser.close(); 
     console.log("Procedimento finalizado!");    
 } 
-async function openSecondaryPage(){
-    const browser = await puppeteer.launch({ headless: false });
-    const page = await browser.newPage();
+async function modifyElements(page, browser){
+    runMouse(page); //Simula o movimento do mouse   
+    
+    //Elementos poluidores
+    await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.layout.mv-material-viewer-toolbar.align-center.justify-space-between.row.fill-height.mv-viewer-toolbar');
+    await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-content-viewer-limitation.mv-file-content-limitation > div');
+    await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-material-viewer-container.mv-file-infobar > div.layout.mv-material-viewer-infobar.row.justify-end.wrap.align-end.align-center.visible.absolute');
+    await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-material-viewer-container.mv-file-infobar > div.pd-collapse.vertical.show');    
+           
+    await page.evaluate(() => {        
+        let topBar = document.querySelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.layout.mv-material-viewer-toolbar.align-center.justify-space-between.row.fill-height.mv-viewer-toolbar');
+        let rodape = document.querySelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-content-viewer-limitation.mv-file-content-limitation > div');        
+        let barName = document.querySelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-material-viewer-container.mv-file-infobar > div.layout.mv-material-viewer-infobar.row.justify-end.wrap.align-end.align-center.visible.absolute');
+        let barBackground = document.querySelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-material-viewer-container.mv-file-infobar > div.pd-collapse.vertical.show');        
+        
+        topBar.parentNode.removeChild(topBar);
+        rodape.parentNode.removeChild(rodape);
+        barName.parentNode.removeChild(barName);
+        barBackground.parentNode.removeChild(barBackground);
 
-    page.on('load', () => console.log('=====Page loaded!====='));
-    await page.goto('https://google.com');
+        //rodape.innerHTML = "ABC"; //Inseri html no elemento
+    });  
+
+    goByPage(page, browser);    
 }
 
-openPage('https://www.passeidireto.com/arquivo/29471837/avaliando-aprendizado-estrutura-de-dados');
+openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
