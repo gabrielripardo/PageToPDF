@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer')            
+var merge = require('easy-pdf-merge');
 
 async function openPage(url){
     const browser = await puppeteer.launch();   //Modo handler
@@ -72,11 +73,12 @@ async function goByPage(page, browser){
         await page.waitFor(2000);   // Tempo para que o método getPage gere o pdf.        
         nPage++;
     }    
-    closePage(browser);
+    //closePage(browser);
+    mergePDFs('Sistemas numéricos', 7);
 }
 async function getPage(page, nPage){
     await page.emulateMedia('screen');
-    var path = 'pag. '+ nPage.toString()+'.pdf';
+    var path = 'temp/pag. '+ nPage.toString()+'.pdf';
     //await page.screenshot({path: path});
     await page.pdf({path: path, format: 'A4'});              
 }     
@@ -108,6 +110,21 @@ async function modifyElements(page, browser){
     });  
 
     goByPage(page, browser);    
+}
+function mergePDFs(titlePage, nMaxPage){    
+    var dest_file = titlePage+'.pdf';
+    var nPagesMax = nMaxPage;
+    var source_files = [];
+    for(n=1; n<=nPagesMax; n++){
+        source_files.push('temp/pag. '+ n +'.pdf');
+    }
+    console.log(source_files);
+
+    merge(source_files,dest_file,function(err){
+        if(err)
+        return console.log(err);
+        console.log('Successfully merged pages!');
+    });
 }
 
 openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
