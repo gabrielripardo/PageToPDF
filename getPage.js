@@ -2,6 +2,8 @@ const puppeteer = require('puppeteer')
 var merge = require('easy-pdf-merge');
 
 var titulo = '';
+var numMaxPages = '';
+
 async function openPage(url){
     const browser = await puppeteer.launch();   //Modo handler
     //const browser = await puppeteer.launch({ headless: false });     //Modo browser chrome nativo
@@ -9,8 +11,15 @@ async function openPage(url){
     await page.goto(url);    
     
     titulo = await page.title();
-    console.log(titulo);
+    console.log(titulo);        
+    getTotalPages(page)    
     inserirCokies(page, browser, url);
+}
+async function getTotalPages(page){
+    const element = await page.$(".page-count");
+    const text = await page.evaluate(element => element.textContent, element);
+    numString = text.replace(/[^0-9]/g,'');             
+    numMaxPages = parseInt(numString);          
 }
 async function inserirCokies(page, browser, url){
     const cookies = [{
@@ -43,7 +52,8 @@ async function inserirCokies(page, browser, url){
     const cookiesSet = await page.cookies(url);
     await page.goto(url);
     console.log(JSON.stringify(cookiesSet));
-    
+    console.log("Number pages: ", numMaxPages);
+
     modifyElements(page, browser);    
 }
 async function runMouse(page){
@@ -62,7 +72,7 @@ async function goByPage(page, browser){
     
     //Contadores de páginas
     var nPage = 1;
-    var nPageMax = 3;
+    var nPageMax = numMaxPages;
     while(nPage <= nPageMax){                    
         
         //Clica no campo
