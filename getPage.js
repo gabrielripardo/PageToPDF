@@ -1,12 +1,25 @@
 const puppeteer = require('puppeteer')            
+var merge = require('easy-pdf-merge');
+
+var titulo = '';
+var numMaxPages = '';
 
 async function openPage(url){
     const browser = await puppeteer.launch();   //Modo handler
     //const browser = await puppeteer.launch({ headless: false });     //Modo browser chrome nativo
     var page = await browser.newPage();         
     await page.goto(url);    
-
+    
+    titulo = await page.title();
+    console.log(titulo);        
+    getTotalPages(page)    
     inserirCokies(page, browser, url);
+}
+async function getTotalPages(page){
+    const element = await page.$(".page-count");
+    const text = await page.evaluate(element => element.textContent, element);
+    numString = text.replace(/[^0-9]/g,'');             
+    numMaxPages = parseInt(numString);          
 }
 async function inserirCokies(page, browser, url){
     const cookies = [{
@@ -39,10 +52,9 @@ async function inserirCokies(page, browser, url){
     const cookiesSet = await page.cookies(url);
     await page.goto(url);
     console.log(JSON.stringify(cookiesSet));
-    
-    //await page.waitFor(20000);
-    modifyElements(page, browser);
-    //goByPage(page, browser);
+    console.log("Number pages: ", numMaxPages);
+
+    modifyElements(page, browser);    
 }
 async function runMouse(page){
     var cont = 0;
@@ -53,13 +65,14 @@ async function runMouse(page){
         console.log(cont++);
     }
 }
+
 async function goByPage(page, browser){              
     //Espera o seletor ser carregado
     await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-file-contents > div > div > div.file-viewer-navigator > div > div.pages-info > input[type="number"]')
     
     //Contadores de páginas
     var nPage = 1;
-    var nPageMax = 7;
+    var nPageMax = numMaxPages;
     while(nPage <= nPageMax){                    
         
         //Clica no campo
@@ -72,11 +85,13 @@ async function goByPage(page, browser){
         await page.waitFor(2000);   // Tempo para que o método getPage gere o pdf.        
         nPage++;
     }    
-    closePage(browser);
+    //closePage(browser);
+    
+    mergePDFs(titulo, nPageMax);
 }
 async function getPage(page, nPage){
     await page.emulateMedia('screen');
-    var path = 'pag. '+ nPage.toString()+'.pdf';
+    var path = 'temp/pag. '+ nPage.toString()+'.pdf';
     //await page.screenshot({path: path});
     await page.pdf({path: path, format: 'A4'});              
 }     
@@ -108,6 +123,22 @@ async function modifyElements(page, browser){
     });  
 
     goByPage(page, browser);    
+}
+function mergePDFs(titlePage, nMaxPage){    
+    //titlePage = 'Bases numéricas Passei Direto';
+    var dest_file = titlePage+'.pdf';
+    var nPagesMax = nMaxPage;
+    var source_files = [];
+    for(n=1; n<=nPagesMax; n++){
+        source_files.push('temp/pag. '+ n +'.pdf');
+    }
+    console.log(source_files);
+
+    merge(source_files,dest_file,function(err){
+        if(err)
+        return console.log(err);
+        console.log('Successfully merged pages!');
+    });
 }
 
 openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
