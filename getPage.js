@@ -1,12 +1,15 @@
 const puppeteer = require('puppeteer')            
 var merge = require('easy-pdf-merge');
 
+var titulo = '';
 async function openPage(url){
     const browser = await puppeteer.launch();   //Modo handler
     //const browser = await puppeteer.launch({ headless: false });     //Modo browser chrome nativo
     var page = await browser.newPage();         
     await page.goto(url);    
-
+    
+    titulo = await page.title();
+    console.log(titulo);
     inserirCokies(page, browser, url);
 }
 async function inserirCokies(page, browser, url){
@@ -41,9 +44,7 @@ async function inserirCokies(page, browser, url){
     await page.goto(url);
     console.log(JSON.stringify(cookiesSet));
     
-    //await page.waitFor(20000);
-    modifyElements(page, browser);
-    //goByPage(page, browser);
+    modifyElements(page, browser);    
 }
 async function runMouse(page){
     var cont = 0;
@@ -54,13 +55,14 @@ async function runMouse(page){
         console.log(cont++);
     }
 }
+
 async function goByPage(page, browser){              
     //Espera o seletor ser carregado
     await page.waitForSelector('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-file-contents > div > div > div.file-viewer-navigator > div > div.pages-info > input[type="number"]')
     
     //Contadores de páginas
     var nPage = 1;
-    var nPageMax = 7;
+    var nPageMax = 3;
     while(nPage <= nPageMax){                    
         
         //Clica no campo
@@ -74,7 +76,8 @@ async function goByPage(page, browser){
         nPage++;
     }    
     //closePage(browser);
-    mergePDFs('Sistemas numéricos', 7);
+    
+    mergePDFs(titulo, nPageMax);
 }
 async function getPage(page, nPage){
     await page.emulateMedia('screen');
@@ -112,6 +115,7 @@ async function modifyElements(page, browser){
     goByPage(page, browser);    
 }
 function mergePDFs(titlePage, nMaxPage){    
+    //titlePage = 'Bases numéricas Passei Direto';
     var dest_file = titlePage+'.pdf';
     var nPagesMax = nMaxPage;
     var source_files = [];
