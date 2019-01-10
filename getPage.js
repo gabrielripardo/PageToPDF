@@ -98,7 +98,7 @@ async function goByPage(page, browser){
     }    
     //closePage(browser);
     
-    mergePDFs(titulo, nPageMax);
+    mergePDFs(titulo, nPageMax, browser);
 }
 async function getPage(page, nPage){
     await page.emulateMedia('screen');
@@ -135,7 +135,7 @@ async function modifyElements(page, browser){
 
     goByPage(page, browser);    
 }
-function mergePDFs(titlePage, nMaxPage){    
+function mergePDFs(titlePage, nMaxPage, browser){    
     //titlePage = 'Bases numéricas Passei Direto';
     var dest_file = titlePage+'.pdf';
     var nPagesMax = nMaxPage;
@@ -153,4 +153,4 @@ function mergePDFs(titlePage, nMaxPage){
     closePage(browser);
 }
 
-openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
+openPage('https://www.passeidireto.com/arquivo/46173710/prova-discursiva-100-corrigida-estrutura-de-dados');
