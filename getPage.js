@@ -3,6 +3,7 @@ var merge = require('easy-pdf-merge');
 
 var titulo = '';
 var numMaxPages = '';
+var formato = 'A4';
 
 async function openPage(url){
     const browser = await puppeteer.launch();   //Modo handler
@@ -96,7 +97,6 @@ async function goByPage(page, browser){
         }
         nPage++;
     }    
-    //closePage(browser);
     
     mergePDFs(titulo, nPageMax, browser);
 }
@@ -104,7 +104,7 @@ async function getPage(page, nPage){
     await page.emulateMedia('screen');
     var path = 'temp/pag. '+ nPage.toString()+'.pdf';
     //await page.screenshot({path: path});
-    await page.pdf({path: path, format: 'A4'});              
+    await page.pdf({path: path, format: formato});              
 }     
 async function closePage(browser){
     await browser.close(); 
@@ -135,8 +135,7 @@ async function modifyElements(page, browser){
 
     goByPage(page, browser);    
 }
-function mergePDFs(titlePage, nMaxPage, browser){    
-    //titlePage = 'Bases numéricas Passei Direto';
+function mergePDFs(titlePage, nMaxPage, browser){        
     var dest_file = titlePage+'.pdf';
     var nPagesMax = nMaxPage;
     var source_files = [];
@@ -153,4 +152,4 @@ function mergePDFs(titlePage, nMaxPage, browser){
     closePage(browser);
 }
 
-openPage('https://www.passeidireto.com/arquivo/46173710/prova-discursiva-100-corrigida-estrutura-de-dados');
+openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
