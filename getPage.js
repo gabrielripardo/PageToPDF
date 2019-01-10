@@ -73,16 +73,27 @@ async function goByPage(page, browser){
     //Contadores de páginas
     var nPage = 1;
     var nPageMax = numMaxPages;
+    var qtdBackspace = 1;
+    var tenMultiple = 10;
     while(nPage <= nPageMax){                    
         
         //Clica no campo
         await page.click('#app > div.application--wrap > main > div > div > div > div > div.layout.align-space-around.justify-space-around.row.fill-height > div.flex.mv-material-viewer-main > div.mv-file.mv-content.limitation-bar > div.mv-file-contents > div > div > div.file-viewer-navigator > div > div.pages-info > input[type="number"]');   
+        
         //Apaga e inseri o nº da pág. e depois 3 segundos vai para próxima.        
-        await page.keyboard.press('Backspace');        
+        for(nPress=1; nPress<=qtdBackspace; nPress++){
+            await page.keyboard.press('Backspace');        
+        }
+        
         await page.keyboard.type(nPage.toString());
         await page.waitFor(3000);     // Tempo para que que todos os elemento da página carrege      
         getPage(page, nPage);
         await page.waitFor(2000);   // Tempo para que o método getPage gere o pdf.        
+        
+        if(nPage==tenMultiple){
+            qtdBackspace++;
+            tenMultiple = tenMultiple*10;
+        }
         nPage++;
     }    
     //closePage(browser);
@@ -139,6 +150,7 @@ function mergePDFs(titlePage, nMaxPage){
         return console.log(err);
         console.log('Successfully merged pages!');
     });
+    closePage(browser);
 }
 
 openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas');
