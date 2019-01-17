@@ -1,4 +1,8 @@
-import puppeteer from 'puppeteer';
+//import puppeteer from 'puppeteer';
+const puppeteer = require('puppeteer');
+
+var session = '';
+var browser;
 
 const createSession = async (browser, startUrl) => {
   const page = await browser.newPage();
@@ -6,14 +10,24 @@ const createSession = async (browser, startUrl) => {
   await page.goto(startUrl);
 
   //await page.waitForSelector('#submit');
-
-  const cookies = await page.cookies();
+  console.log('carregando página...');
+  await page.waitFor(30000);
+ 
+  console.log('capturando cookies...');
+  var cookies = await page.cookies();
+  cookies = cookies.map((cookie) => {
+    return {
+      ...cookie,
+      expires: Date.now() / 1000 + 10 * 60,
+      session: false
+    };
+  });
   const url = await page.url();
 
-  return {
-    cookies,
-    url
-  };
+  //Inseri cookies em browser secundário
+  openOtherBrowser();
+    
+  return {cookies, url};
 };
 
 const useSession = async (browser, session) => {
@@ -24,18 +38,29 @@ const useSession = async (browser, session) => {
   }
 
   await page.goto(session.url);
+  
+  captureScreen(page);
 };
 
 const run = async () => {
-  const browser = await puppeteer.launch({
-    headless: false
-  });
+  browser = await puppeteer.launch({headless: false});
 
-  const session = await createSession(browser, 'https://www.passeidireto.com/arquivo/44072199/bases-numericas');
+  session = await createSession(browser, 'https://www.passeidireto.com/arquivo/44072199/bases-numericas');
 
-  // The session has been established
-  await useSession(browser, session);
-  await useSession(browser, session);
+  
 };
+async function openOtherBrowser(){
+  const browser1 = await puppeteer.launch();
+  // The session has been established
+  await useSession(browser1, session);
 
-run();
+  //await useSession(browser, session);
+}
+async function captureScreen(page){
+  await page.emulateMedia('screen');
+  await page.waitFor(10000);
+  await page.screenshot({path: 'screenHide.png'});  
+  await browser.close();
+}
+
+run(); //Inicializador 
