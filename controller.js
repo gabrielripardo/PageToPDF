@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 var BrowserAutomator = require('./BrowserAutomator');
 
@@ -14,3 +15,14 @@ function tirarScrenshot(){
 function openTest(){
     myPage.hideBrowser();
 }
+=======
+var BrowserAutomator = require('./BrowserAutomator'); 
+ 
+var myPage = new BrowserAutomator('A2', 5); 
+ 
+function gerarAcao(){     
+    myPage.openPage('https://www.passeidireto.com/arquivo/44072199/bases-numericas'); 
+} 
+
+gerarAcao();
+>>>>>>> Stashed changes
