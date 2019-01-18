@@ -3,26 +3,26 @@ var merge = require('easy-pdf-merge');
 var CaptureCookies = require('./CaptureCookies');
 
 class BrowserAutomator{
-    constructor(formato, interval){
-        this.url = '';
+    constructor(formato, interval, sessionOn, url){
+        this.url = url;                
         this.titulo = '';
         this.numMaxPages = '';
         this.formato = formato;
-        this.interval = interval;        
-    }
-    
-    async openPage(url){
-        this.url = url;        
-        const browser = await puppeteer.launch();   //Modo handler
-        //const browser = await puppeteer.launch({ headless: false });     //Modo browser chrome nativo
+        this.interval = interval;     
+        this.sessionOn = sessionOn;   
+        this.catchCookies = new CaptureCookies(); 
+    }    
+    async openPage(){        
+        //const browser = await puppeteer.launch();   //Modo handler
+        const browser = await puppeteer.launch({ headless: false });     //Modo browser chrome nativo
         
         var page = await browser.newPage();         
-        await page.goto(url);    
+        await page.goto(this.url);    
         
         this.titulo = await page.title();
         console.log(this.titulo);        
         this.getTotalPages(page);    
-        this.inserirCokies(page, browser, url);
+        this.inserirCokies(page, browser, this.url);
     }    
     async getTotalPages(page){
         const element = await page.$(".page-count");
@@ -32,17 +32,18 @@ class BrowserAutomator{
         console.log("Number pages: ", this.numMaxPages);
     }
     async inserirCokies(page, browser, url){        
-        var catchCookies = new CaptureCookies(url, browser);  
+        
+        this.catchCookies.run(url, browser, this.sessionOn);        
         //Espera o processo de autenticação e inserção de cookies serem concluídos;
         var cont = 0;
-        while(!catchCookies.prosseguir){                  
+        while(!this.catchCookies.prosseguir){                  
             await page.waitFor(1000);              
             console.log('Esperando liberação: ',cont++,' s');
-            console.log('Prosseguir: ',catchCookies.prosseguir);
+            console.log('Prosseguir: ',this.catchCookies.prosseguir);
         }
                 
         console.log('Processeguindo... Cookies inseridos!!!!!')
-        this.openTabs(catchCookies.pageHeadless, browser);
+        this.openTabs(this.catchCookies.pageHeadless, browser);
     }
     
     async openTabs(page, browser){
@@ -147,7 +148,9 @@ class BrowserAutomator{
             return console.log(err);
             console.log('Successfully merged pages!');
         });
-        this.closePage(browser);
+        if(this.sessionOn){
+            this.closePage(browser);
+        }        
     }
 }
 module.exports = BrowserAutomator;

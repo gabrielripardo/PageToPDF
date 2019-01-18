@@ -1,20 +1,28 @@
 const puppeteer = require('puppeteer');
 
 class CaptureCookies{
-  constructor(url, browser1){
+  constructor(){
     this.session;
-    this.url = url;
-    this.browser1 = browser1;
+    this.url;
+    this.browser1;
     this.browser;
     this.page;
     this.pageHeadless;
-    this.prosseguir = false;
-    this.run(); //Inicializador 
+    this.prosseguir;    
   }
-  async run(){
-    this.browser = await puppeteer.launch({headless: false});
-    this.session = await this.createSession(this.browser, this.url);      
+
+  async run(url, browser1, sessionOn){
+    this.url = url;
+    this.browser1 = browser1;
+
+    if(!sessionOn){
+      this.browser = await puppeteer.launch({headless: false});
+      this.session = await this.createSession(this.browser, this.url);            
+    }else{
+      this.openOtherBrowser();
+    }    
   }
+  
   async createSession(browser, startUrl){
     this.page = await browser.newPage();
 
@@ -80,6 +88,9 @@ class CaptureCookies{
     await this.pageHeadless.goto(session.url);   
     this.prosseguir = true;
     await this.browser.close();     
+  }
+  async waitSessionSave(){
+    
   }
 }
 
